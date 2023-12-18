@@ -1,0 +1,19 @@
+Стойки латунные М3 (нужна суммарная высота 55 мм) [не знаю, где Робикс их закупает]
+https://aliexpress.ru/item/1005002907172267.html?sku_id=12000022714905965&spm=a2g2w.productlist.search_results.10.61271566uZrxo1
+https://www.chipdip.ru/product/pchsn-25
+
+
+Крепление мотора
+https://lrob.ru/index.php?route=product/product&product_id=2575
+https://shop.robotclass.ru/item/313#reviews
+https://aliexpress.ru/item/1005003969829817.html?sku_id=12000027598282140&spm=a2g2w.productlist.search_results.2.f7f85b53kVTxui
+
+
+Шаровые опоры
+https://www.ozon.ru/product/opora-vreznaya-sharikovaya-3001m-jet-d10mm-nikel-4-shtuki-249215610/
+https://www.ozon.ru/product/mini-kolesa-dlya-bytovoy-tehniki-i-mebeli-4sht-1268158369/?advert=L8PyiWV7R4kGBoeqV96DvrG5hJL5_cmcpOPhxLQSWrhicPTVcP79xZlFax7WyoJZF2u8I8e3fuZa_uU_wlVETBcs1A1jpB7s5t1OxiZL1yop1N5XF9enif7kOU3Ni7ZpRyH_3pc0KBfUVguJTs5P2TULhQtieVhjVCg8a2e240S68qwSjThVw6O7-3UBzUr0Wr2rA-XG_c_N2w&avtc=1&avte=2&avts=1702849230&tab=questions
+
+RGB-светодиоды
+https://roboshop.spb.ru/modules/svetodiodnye-moduli/rgb-led-module
+https://roboshop.spb.ru/modules/svetodiodnye-moduli/rgb-ky-009-5050
+https://www.ozon.ru/product/svetodiodnyy-modul-rgb-ky-016-3-tsvetnyy-polnotsvetnyy-dlya-arduino-934505437/
