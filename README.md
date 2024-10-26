@@ -7,9 +7,6 @@ This repository contains all the files required to produce and assemble a line-f
 ### 1. **Arena**
    - Files for constructing the arena where the robot will operate, including component lists and 3D models.
 
-### 2. **Camera Mount System**
-   - Assembly instructions, component models, and cutting files for the camera mount, including both DXF and CAD files.
-
 ### 3. **Line Robot**
    - **Assembly Instructions**: Step-by-step assembly guide for the robot.
    - **CAD Files**: 3D models and technical drawings for each robot part.
