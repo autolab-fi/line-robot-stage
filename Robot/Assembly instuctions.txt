@@ -1,16 +1,16 @@
-1. К Этажу 1 прикрепить шаровые опоры комплектными метизами
-2. К этажу 1 прикрепить держатели моторов винтами М3х10 с плоской головкой и нейлоновыми гайками
-3. К держателям моторов прикрепить двигатели комплектными винтами М2,5х6. Вал мотора должен оказаться в нижней части выреза
-4. На валы моторов надеть цанги, закрепить комплектными установочными винтами
-5. К цангам прикрепить колёса комплектными винтами
-6. К Этажу 1 по периметру прикрепить 8 стоек винтами М3х12 с потайной головкой
-7. К Этажу 2 прикрепить драйвер двигателей с помощью помощью 4-х проставочных шайб, винтов М3х10 и гаек М3
-8. К Этажу 2 прикрепить понижающий преобразователь с помощью 1-го винта М2,5х10 и гайки М2,5
-9. К Этажу 2 по периметру прикрепить 8 стоек винтами М3х12 с потайной головкой
-10. К стойкам на Этаже 1 прикрепить Этаж 2 с помощью проставочных шайб и винтов М3х12 с потайной головкой
-11. В пазы на Этаже 2 установить 3 деревянные проставки
-12. К стойкам на Этаже 2 прикрепить Этаж 3 с помощью винтов М3х12 с потайной головкой
-13. К Этажу 3 приклеить April-tag и макетную плату с учётом направления движения робота
-14. Установить на макетную плату ESP 32
-15. В отверстия на Этаже 1 установить светодиоды-фары с учётом направления движения робота
-15. Подключить электронные компоненты согласно схеме. Провода следует пропускать через отверстия в углах этажей
+1. Attach the ball casters to Floor Level 1 using the included fasteners.
+2. Attach the motor holders to Floor Level 1 using M3x10 flat head screws and nylon lock nuts.
+3. Mount the motors to the motor holders with the included M2.5x6 screws, ensuring the motor shaft is positioned at the bottom of the cutout.
+4. Place collets onto the motor shafts and secure them with the included set screws.
+5. Attach wheels to the collets using the provided screws.
+6. Attach 8 standoffs around the perimeter of Floor Level 1 with M3x12 countersunk screws.
+7. Mount the motor driver to Floor Level 2 using 4 spacer washers, M3x10 screws, and M3 nuts.
+8. Attach the buck converter to Floor Level 2 using a single M2.5x10 screw and an M2.5 nut.
+9. Attach 8 standoffs around the perimeter of Floor Level 2 with M3x12 countersunk screws.
+10. Secure Floor Level 2 to the standoffs on Floor Level 1 using spacer washers and M3x12 countersunk screws.
+11. Place 3 wooden spacers into the slots on Floor Level 2.
+12. Attach Floor Level 3 to the standoffs on Floor Level 2 using M3x12 countersunk screws.
+13. Affix the April tag and breadboard to Floor Level 3, ensuring the robot’s direction of movement is taken into account.
+14. Install the ESP32 module onto the breadboard.
+15. Insert the LED headlights into the holes on Floor Level 1, orienting them in the direction of the robot's movement.
+16. Connect all electronic components according to the schematic. Route wires through the corner holes on each floor level.
