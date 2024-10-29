@@ -1,4 +1,4 @@
-# Project Components
+# Robot Components
 
 This README outlines the components required for this project, divided into standard components, custom-made parts, and fasteners.
 
