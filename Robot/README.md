@@ -7,7 +7,7 @@ This README outlines the components required for this project, divided into stan
 1. **Microcontroller**: ESP32-WROOM-32 - 1 unit
 2. **Lithium Battery**: 7s2p or 6s2p configuration - 1 unit
 3. **Buck Converter** (Step-down) - 1 unit
-4. **Motor with Encoder**: JGB37-545 - 2 units
+4. **Motor with Encoder**: JGB37-545 12V 178RPM - 2 units
 5. **Motor Holder** - 2 units
 6. **Collet** - 2 units
 7. **Wheel** - 2 units
