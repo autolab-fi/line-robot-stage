@@ -1,0 +1,93 @@
+/* Styling for the MQTT Web App */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #2c2b2b;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    color: #d84519;
+    text-align: center;
+    margin-top: 20px;
+}
+
+h3 {
+    color: #008000;
+    margin-top: 20px;
+}
+
+button {
+    background-color: #008000;
+    color: #fafcfa;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #d84519;
+}
+
+input[type="url"],
+input[type="number"],
+textarea {
+    /* width: calc(100% - 24px);
+    padding: 8px;
+    margin: 5px 0; */
+    border-radius: 5px;
+    border: 1px solid #008000;
+    background-color: #3a3a3a;
+    color: #fafcfa;
+}
+
+input[type="checkbox"] {
+    margin-left: 10px;
+}
+
+/* video {
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid #008000;
+} */
+
+#commandForm {
+    background-color: #3a3a3a;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#system_input, #system_output {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 10px;
+    color: #fafcfa;
+}
+
+label {
+    /* display: block; */
+    font-weight: bold;
+    margin-top: 10px;
+    color: #fafcfa;
+}
+
+#stream {
+    max-width: 972px;
+    margin: 0 auto;
+}
+
+button,
+input,
+textarea {
+    padding: 10px;
+    margin: 5px;
+    display: inline-block;
+    font-size: 14px;
+}
+
