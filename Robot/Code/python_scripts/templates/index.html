@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MQTT Web App</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>MQTT Command Sender</h2>
+
+    <h2>Video Stream</h2>
+    <div>
+      <video
+      id="stream"
+      class="video-js"
+      controls
+      muted
+      autoplay
+      preload="auto"
+      width="680"
+      height="510"
+      data-setup="{}"
+    >
+   
+      <source src="{{video_url}}" type="application/x-mpegURL">
+      <!-- <source src="https://www.tutorialspoint.com/videos/stream.m3u8" type="application/x-mpegURL" > -->
+    </video>
+
+    <!-- Quick Command Buttons -->
+    <h3>Quick Commands</h3>
+    <button onclick="restart()">Restart</button>
+    <button onclick="batteryStatus()">Battery Status</button>
+    
+    <div>
+        <button onclick="updateFirmware()">Update</button>
+        <label for="url_file">url-firmware</label>
+        <input type="url" id="url_file" oninput="saveToLocalStorage()">
+    </div>
+    
+
+    <div>
+        <button onclick="Forward()">Move forward</button>
+        <label for="Forward">value</label>
+        <input type="number" id="forward" oninput="saveToLocalStorage()">
+    </div>
+    <div>
+        <button onclick="Backward()">Move backward</button>
+        <label for="backward">value:</label>
+        <input type="number" id="backward" oninput="saveToLocalStorage()">
+    </div>
+    <div>
+        <button onclick="Left()">Rotate left</button>
+        <label for="left">Angle:</label>
+        <input type="number" id="left" oninput="saveToLocalStorage()">
+    </div>
+    <div>
+        <button onclick="Right()">Rotate right</button>
+        <label for="right">Angle:</label>
+        <input type="number" id="right" oninput="saveToLocalStorage()">
+    </div>
+
+    <div>
+        <button onclick="start()">Start</button>
+        <input type="checkbox" id="start_type" name ="set_block">
+        <label for="set_block">set_block</label>
+    </div>
+    <!-- Command Input Form -->
+    <form id="commandForm">
+        <label for="commandInput">Command (JSON format):</label>
+        <textarea id="commandInput" rows="4" cols="50">{ "command": "restart" }</textarea>
+        <button type="submit">Send Command</button>
+    </form>
+
+    <!-- Message History -->
+    <h2>Log</h2>
+    <div style="display: flex; width: 100%;">
+        <div id="system_input" style="width: 50%; padding: 10px; box-sizing: border-box;">
+            <h3>Topic:{{system_input}}</h3>
+        </div>
+        <div id="system_output" style="width: 50%; padding: 10px; box-sizing: border-box;">
+            <h3>Topic: {{system_output}}</h3>
+        </div>
+    </div>
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script type="text/javascript">
+        // Initialize Socket.IO client
+        const socket = io.connect("http://" + document.domain + ":" + location.port);
+        // player = document.getElementById("stream");
+        // player.src({
+        //     "src": "{{video_url}}",
+        //     "type": "application/x-mpegURL"
+        // });
+        // Load and parse command from local storage on page load
+        window.onload = function() {
+            const savedCommand = localStorage.getItem("savedCommand");
+            if (savedCommand) {
+                $("#commandInput").val(savedCommand);
+            }
+            const savedUrl = localStorage.getItem("urlValue");
+            const forward = localStorage.getItem("forward");
+            const backward = localStorage.getItem("backward");
+            const left = localStorage.getItem("left");
+            const right = localStorage.getItem("right");
+
+
+            if (savedUrl) document.getElementById("url_file").value = savedUrl;
+            if (forward) document.getElementById("forward").value = forward;
+            if (backward) document.getElementById("backward").value = backward;
+            if (left) document.getElementById("left").value = left;
+            if (right) document.getElementById("right").value = right;
+
+            // Fetch and display message history
+            $.getJSON("/history", function(data) {
+                data.forEach(addMessageToHistory);
+            });
+        };
+
+        // Handle incoming MQTT messages and add to message history
+        socket.on("mqtt_message", function(data) {
+            addMessageToHistory(data);
+        });
+
+        
+
+        // Function to save input values to local storage on edit
+        function saveToLocalStorage() {
+            const urlValue = document.getElementById("url_file").value;
+            const forward= document.getElementById("forward").value;
+            const backward = document.getElementById("backward").value;
+            const left = document.getElementById("left").value;
+            const right = document.getElementById("right").value;
+            localStorage.setItem("urlValue", urlValue);
+            localStorage.setItem("forward", forward);
+            localStorage.setItem("backward", backward);
+            localStorage.setItem("left", left);
+            localStorage.setItem("right", right);
+            }
+
+
+        // Function to add messages to the history section
+        function addMessageToHistory(message) {
+            const date = new Date();
+            const formattedDate = date.toLocaleString({ timeZoneName: 'short' });
+            const messageHTML = `<p> ${formattedDate} : ${message.payload}</p>`;
+            if (message.topic === "{{system_input}}"){
+                $("#system_input").append(messageHTML);
+            } else if (message.topic === "{{system_output}}"){
+               
+                $("#system_output").append(messageHTML);
+            }
+            
+        }
+
+        // Save command to local storage and send it
+        $("#commandForm").on("submit", function(event) {
+            event.preventDefault();
+            const command = $("#commandInput").val();
+            localStorage.setItem("savedCommand", command);  // Save command in local storage
+
+            sendCommand(JSON.parse(command));  // Send command as JSON
+        });
+        
+        function Forward() {
+            const forward= document.getElementById("forward").value;
+            const command = { "command": "move", "commands":"f", "values":[forward]};
+            sendCommand(command);
+        }
+        function Backward() {
+            const backward = document.getElementById("backward").value;
+            const command = { "command": "move", "commands":"b", "values":[backward]};
+            sendCommand(command);
+        }
+
+        function Left() {
+            const left = document.getElementById("left").value;
+            const command = { "command": "move", "commands":"l", "values":[left]};
+            sendCommand(command);
+        }
+
+        function Right() {
+            const right = document.getElementById("right").value;
+            const command = { "command": "move", "commands":"r", "values":[right]};
+            sendCommand(command);
+        }
+
+
+        // Function to restart esp32
+        function restart() {
+            const command = { "command": "restart"};
+            sendCommand(command);
+        }
+
+        // Function to restart esp32
+        function batteryStatus() {
+            const command = { "command": "battery-status"};
+            sendCommand(command);
+        }
+
+        // Function to restart esp32
+        function start() {
+            element = document.getElementById("start_type");
+            set_block = false;
+            if (element.value){
+                set_block = true;
+            }
+            const command = { "command": "start","set_block": set_block};
+            sendCommand(command);
+        }
+
+        // Function to restart esp32
+        function updateFirmware() {
+            const url = document.getElementById("url_file").value;
+            const command = { "command": "update", "url_file":url, "version-token":""};
+            sendCommand(command);
+        }
+
+        // Function to send command to the backend
+        function sendCommand(command) {
+            $.ajax({
+                url: "/send_command",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(command),
+                success: function(response) {
+                    console.log("Command sent:", response);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
