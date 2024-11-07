@@ -12,7 +12,7 @@ socketio = SocketIO(app)
 topic = ""
 # Define MQTT broker settings
 broker = ""  # broker address
-port = 1883   # broke port
+port = 1   # broke port
 broker_password = ""
 broker_user = ""
 # Define camera ip addtess
@@ -49,14 +49,14 @@ def setup_mqtt():
     mqtt_client.on_message = on_message
     mqtt_client.connect(broker, port, 60)
     for topic in subscribe_topics:
-        mqtt_client.subscribe(topic)
+        mqtt_client.subscribe(topic, qos=2)
     mqtt_client.loop_start()
 
 # Send command to topic1
 @app.route('/send_command', methods=['POST'])
 def send_command():
     command = request.json
-    mqtt_client.publish(publish_topic, json.dumps(command))
+    mqtt_client.publish(publish_topic, json.dumps(command), qos=2)
     return jsonify({"status": "Command sent", "command": command})
 
 # Get message history
