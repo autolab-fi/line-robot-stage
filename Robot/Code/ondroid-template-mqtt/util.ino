@@ -49,25 +49,55 @@ void func_move_robot(){
 }
 
 
-// get battery status. calculate voltage on resistor
-float getVoltage(){
-  if (robotMove){
-    return voltage;
+
+void readVoltage(){
+  int16_t adc0, adc1;
+  float voltage_charging;
+  int64_t Adc0_temp = 0;
+  int64_t Adc1_temp = 0;
+  for(uint8_t i = 0;i<32; i++){
+    adc0 = adc.readADC_SingleEnded(0);
+    adc1 = adc.readADC_SingleEnded(1);
+    Adc0_temp += adc0;
+    Adc1_temp += adc1;
   }
-  int A0Value = analogRead(voltagePin);
-  voltage = (float)A0Value * (3.3 / 4096.0) * ( 1 + 10.0)*k_voltage;
-  return voltage;
+  Serial.print("Adc0_temp: ");
+  Serial.println(Adc0_temp);
+  Serial.print("Adc1_temp: ");
+  Serial.println(Adc1_temp);
+  adc0 = Adc0_temp / 32;
+  adc1 = Adc1_temp / 32;
+  Serial.print("adc0: ");
+  Serial.println(adc0);
+  Serial.print("adc1: ");
+  Serial.println(adc1);
+  voltage_charging = adc.computeVolts(adc0);
+  voltage = adc.computeVolts(adc1)*k_voltage;
+  charging = voltage_charging > 1;
+  Serial.print("voltage: ");
+  Serial.println(voltage);
+  Serial.print("charging: ");
+  Serial.println(charging);
+  // Serial.println("-----------------------------------------------------------");
+  // Serial.print("AIN0: "); Serial.print(adc0); Serial.print("  "); Serial.print(volts0); Serial.println("V");
+  // Serial.print("AIN1: "); Serial.print(adc1); Serial.print("  "); Serial.print(volts1); Serial.println("V");
+
 }
-// get status of charing
-bool charging(){
-  return (analogRead(chargingPin))>5;
-}
+
+
 // func for moving backward while not charing with timeout 10 seconds
 void moveCharging(){
   long endTime = millis()+10000;
-  while (!charging() && millis()<endTime){ 
+  while (!charging && millis()<endTime){ 
     robot.moveBackwardDistance(7);
+    readVoltage();
   }
+  String ch = "false";
+  if (charging){
+    ch="true";
+  }
+  String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(voltage)+"\", \"charging\": \""+ch+"\"}";
+  sendMessageSystem(resp);
 }
 
 // func to restart esp32

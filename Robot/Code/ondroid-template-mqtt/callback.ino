@@ -16,7 +16,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
   // display message
   Serial.print("Topic: ");
   Serial.println(topic);
-  if (topic==systemTopicInput){
+  if (String(topic)==systemTopicInput){
     Serial.print("Message: ");
     String data = "";
     for (int i = 0; i < length; i++) {
@@ -38,11 +38,12 @@ void callback(char *topic, byte *payload, unsigned int length) {
     }
     // get battery info: battery voltage and charging
     if (strcmp(doc["command"], "battery-status") == 0) {
+      readVoltage();
       String ch = "false";
-      if (charging()>0){
+      if (charging){
         ch="true";
       }
-      String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(getVoltage())+"\", \"charging\": \""+ch+"\"}";
+      String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(voltage)+"\", \"charging\": \""+ch+"\"}";
       sendMessageSystem(resp);
       return;
     }

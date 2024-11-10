@@ -6,6 +6,8 @@
 #include <HTTPUpdate.h>
 #include <EEPROM.h>
 #include "esp_pm.h"
+#include <Adafruit_ADS1X15.h>
+
 //#define versionToken "version-control-token"
 #define EEPROM_SIZE 512
 #define START_ADDRESS 0
@@ -14,10 +16,10 @@ int moveValues[10];
 
 const uint8_t ledPin1 = 22;
 const uint8_t ledPin2  = 23;
-const uint8_t voltagePin = 36;
-const uint8_t chargingPin = 39;
 
-
+// adc to read battery voltage
+Adafruit_ADS1115 adc;  /* Use this for the 16-bit version */
+//Adafruit_ADS1015 adc;     /* Use this for the 12-bit version */
 // percentage for upload
 uint8_t previous_percentage = 0;
 // downloading new code flag
@@ -28,8 +30,9 @@ bool robotStart = false;
 bool robotMove = false;
 bool robotCharging = false;
 // measuring voltage
-float k_voltage = 1.48;
 float voltage = 0;
+float k_voltage = 10.0;
+bool charging = false;
 // timer for detecting start of the user's code executing
 unsigned long user_code_timer = 0;
 // struct for store setting in EEPROM
@@ -60,6 +63,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 void setup() {
+  // config for update by http
   httpUpdate.rebootOnUpdate(false); // remove automatic update
   httpUpdate.onStart(update_started);
   httpUpdate.onEnd(update_finished);
@@ -82,9 +86,6 @@ void setup() {
   pinMode(ledPin2, OUTPUT);
   digitalWrite(ledPin1, 0);
   digitalWrite(ledPin2, 0);
-  // pinMode for charging and voltage pins
-  pinMode(chargingPin, INPUT);
-  pinMode(voltagePin, INPUT);
   // Devide threads on 1 core and 2 core of esp32
   xTaskCreatePinnedToCore(Task1Core, "Core 0", 10000, NULL, 1, NULL,  0); //first core for connection to wifi and server
   xTaskCreatePinnedToCore(Task2Core, "Core 1", 10000, NULL, 1, NULL,  1); //second core for user's code and robot movement
@@ -97,6 +98,23 @@ void Task1Core( void * parameter) {
       Serial.println("failed to initialize EEPROM");
       delay(1000000);
     }
+
+  // The ADC input range (or gain) can be changed via the following
+  // functions, but be careful never to exceed VDD +0.3V max, or to
+  // exceed the upper and lower limits if you adjust the input range!
+  // Setting these values incorrectly may destroy your ADC!
+  //                                                                ADS1015  ADS1115
+  //                                                                -------  -------
+   //ads.setGain(GAIN_TWOTHIRDS);  // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+   adc.setGain(GAIN_ONE);        // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
+   //ads.setGain(GAIN_TWO);        // 2x gain   +/- 2.048V  1 bit = 1mV      0.0625mV
+  // ads.setGain(GAIN_FOUR);       // 4x gain   +/- 1.024V  1 bit = 0.5mV    0.03125mV
+  // ads.setGain(GAIN_EIGHT);      // 8x gain   +/- 0.512V  1 bit = 0.25mV   0.015625mV
+  // ads.setGain(GAIN_SIXTEEN);    // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
+
+  if (!adc.begin()) {
+    Serial.println("Failed to initialize ADS.");
+  }
   // Read settings from EEPROM
   NetworkSettings networkSettings = readNetworkSettingsFromEEPROM();
   // Display the network settings
@@ -131,9 +149,13 @@ void Task1Core( void * parameter) {
   // Connecting to a WiFi network
   WiFi.begin(networkSettings.wifiSSID, networkSettings.wifiPassword);
   Serial.println("Connecting to WiFi..");
+  unsigned long timer = millis();
   while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
+      if (millis()-timer>5000){
+        restartESP32();
+      }
   }
 
   Serial.println("");
@@ -156,7 +178,7 @@ void Task1Core( void * parameter) {
   // start robot lib
   robot.begin();
   // timer to restart robot sometimes
-  long timer = millis();
+  timer = millis();
   long blink_timer = millis();
   int8_t signal = 0;
   // it is infinite loop on the first core
@@ -211,6 +233,8 @@ void Task1Core( void * parameter) {
 
 //This core is used exclusively for student code for educational purposes and for control motors
 void Task2Core( void * parameter) {       
+  // second timer for restart 
+  user_code_timer = millis(); 
   // infinite loop while user's code not started
   while(!robotStart){
     // robot recieved command for moving to specified point
@@ -223,13 +247,18 @@ void Task2Core( void * parameter) {
       moveCharging();
       robotCharging=false;
     }
+    if (millis()-user_code_timer > 1300000) {
+      if (!(robotStart || robotMove)){
+        restartESP32();
+      } 
+    }
     // to prevent core panic
     delay(1);
   }
   // sendMessage to chaennel
   sendMessageSystem("{\"type\":\"start\", \"msg\":\"Started!\"}");
   // pause before starting user's code
-  delay(500);
+  delay(3500);
   // timer for user's code
   user_code_timer = millis(); 
   //Setup code for the second core 
