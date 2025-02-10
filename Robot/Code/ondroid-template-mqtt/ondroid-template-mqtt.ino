@@ -8,6 +8,8 @@
 #include "esp_pm.h"
 #include <Adafruit_ADS1X15.h>
 
+#include <Adafruit_ADS1X15.h>
+
 //#define versionToken "version-control-token"
 #define EEPROM_SIZE 512
 #define START_ADDRESS_NETWORK_SETTINGS 0

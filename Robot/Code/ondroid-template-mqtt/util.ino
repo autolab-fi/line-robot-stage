@@ -117,7 +117,10 @@ void moveCharging(){
     robot.moveBackwardDistance(7);
     readVoltage();
   }
+  String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(voltage)+"\", \"charging\": \""+ch+"\"}";
+  sendMessageSystem(resp);
 }
+
 
 // func to restart esp32
 void restartESP32(){
