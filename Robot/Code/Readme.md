@@ -1,94 +1,93 @@
-# Instructions for Setting up ESP32 for Line-Robot Course
+# Setting up ESP32 for the Line-Robot Course
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](Readme.md)
 [![ru](https://img.shields.io/badge/lang-ru-red.svg)](Readme.ru.md)
 
-## Contents
+## Table of Contents
 
 - [**Folder Description**](#folder-description)
 - [**Step-by-Step Instructions**](#step-by-step-instructions)
+- [**Uploading the Main Executable Sketch**](#uploading-the-sketch)
 - [**Writing Data to EEPROM**](#writing-data-to-eeprom)
-- [**Uploading the Main Sketch**](#uploading-the-main-sketch)
-- [**Python Script for Testing**](#python-script-for-testing)
-- [**Web Interface for Control**](#web-interface-for-control)
+- [**Python Script with Verification**](#python-script-with-verification)
+- [**WEB Interface for Control**](#web-interface-for-control)
 - [**Alternative Robot Control Options**](#alternative-robot-control-options)
 
-## Folder Description
 
-- `ondroid-write-eeprom-settings` - sketch for writing settings to EEPROM memory
-- `ondroid-template-mqtt` - basic sketch for the course
-- `docs/template.md` - description of the basic sketch
-- `python_scripts` - folder containing Python scripts, where `test_mqtt.py` is used to test ESP32 functionality, and `web_app.py` is a web app for real-time robot control
+## Directory Description
+
+- `ondroid-template-mqtt` - base sketch for the course  
+- `docs/template.md` - description of the base sketch
+- `python_scripts` - directory with Python scripts, where `test_mqtt.py` is a script for testing the ESP32, and `web_app.py` is a web application for real-time robot control
+
 
 ## Step-by-Step Instructions
 
-1. Enter configuration data in the `ondroid-write-eeprom-settings` sketch and upload it to the ESP32. [More details](#writing-data-to-eeprom)
-2. Upload the `ondroid-template-mqtt` sketch. [More details](#uploading-the-main-sketch)
-3. Test using the Python script `test_mqtt.py`. [More details](#python-script-for-testing)
+1. Upload the `ondroid-template-mqtt` sketch. [More details](#uploading-the-sketch)
+2. Write configuration data to the device's memory using UART. [More details](#writing-data-to-eeprom)
+3. Test using the Python script `test_mqtt.py`. [More details](#writing-data-to-eeprom)
 
-### Writing Data to EEPROM
 
-1. Run the sketch.
-2. Provide the following data:
+### Uploading the Sketch
 
-	- `MQTT_IP` - IP address of the broker in IPv4 format (four 1-byte numbers)
-	- `MQTT_PORT` - port for broker connection
-	- `MQTT_LOGIN` - login for broker connection
-	- `MQTT_PASSWORD` - password for broker connection
-	- `MQTT_SYSTEM_TOPIC` - system topic for ESP32
-	- `MQTT_USER_TOPIC` - user topic for ESP32 messages
-
-3. Enter the obtained data, along with the Wi-Fi connection information, in `ondroid-write-eeprom-settings.ino`:
-
-	```cpp
-		// DEFINE SETTINGS HERE
-		NetworkSettings myNetworkSettings = {
-			IPAddress(192, 168, 1, 101),    // IP Address in local network NOT USED
-            IPAddress(255, 255, 255, 0),    // Netmask in local network NOT USED
-            IPAddress(192, 168, 1, 1),      // Gateway in local network NOT USED        
-			"WIFI_PASSWORD",                // WiFi Password     
-			"WIFI_SSID",                    // WiFi SSID
-			IPAddress(0, 0, 0, 0),    // MQTT Broker IP
-			0,                           // MQTT Broker port
-			"MQTT_PASSWORD",                // MQTT Password
-			"MQTT_LOGIN",                   // MQTT login
-			"MQTT_SYSTEM_TOPIC",            // MQTT Topic 1
-			"MQTT_USER_TOPIC"               // MQTT Topic 2
-		};
-	```
-
-4. Upload the sketch to ESP32. The serial monitor will display information about the data written to memory.
-
-### Uploading the Main Sketch
-
-1. Download the libraries:
+1. Download the libraries: 
 	- [ArduinoJson](https://docs.arduino.cc/libraries/arduinojson/https://github.com/bblanchon/ArduinoJson) - for working with JSON
 	- [PubSubClient](https://docs.arduino.cc/libraries/pubsubclient) - MQTT client
 	- [Adafruit ADS1X15](https://docs.arduino.cc/libraries/adafruit-ads1x15) - for reading data from the ADC
-	- [LineRobot](https://github.com/autolab-fi/LineRobotLibrary) - Ondroid library for line robot, available only on GitHub
-2. Upload the `ondroid-template-mqtt` sketch to the ESP32.
+	- [LineRobot](https://github.com/autolab-fi/LineRobotLibrary) - the Ondroid library for the line robot, available only on GitHub
+2. Upload the `ondroid-template-mqtt` sketch to the ESP32
 
-### Python Script for Testing
+### Writing Data to EEPROM
 
-1. Enter the broker connection details in the Python script `test_mqtt.py` located in the `python_scripts` folder.
-2. Optionally, create and activate a Python virtual environment.
-3. Install the requirements with `pip install -r python_scripts/requirements.txt`.
-4. Run the script `test_mqtt.py`. If you see the output: **All works as expected.** - everything is functioning correctly.
+When uploading the sketch, there will be an attempt to connect to a WiFi network. The connection attempt will last for 7 seconds. After a failed attempt, the board will reboot to skip the WiFi connection and enter offline mode. **Send "y" to Serial**. If the ESP32 successfully connects to WiFi, **serial commands will also be available**.
 
-## Web Interface for Control
+Command format: each command is written in Serial and ends with a ";" character.
 
-In the Python folder, there is a simple web app for real-time robot control. To use it:
+List of commands:
 
-1. Enter the broker connection details in the Python script `web_app.py`, located in `python_scripts`. You can also add the camera's IP address here to enable real-time streaming on the web page.
-2. Optionally, create and activate a Python virtual environment.
-3. Install the requirements with `pip install -r python_scripts/requirements.txt`.
-4. Run the script `web_app.py`.
-5. In your browser, go to `http://localhost:5000/` to access the web interface.
+- "help" - display a list of commands with descriptions
+- "get all" - display a list of all parameters and their values
+- "set *name*=*value*" - set the value *value* for the parameter with the name *name*. The *name* should be the short name of the parameter, which is indicated in parentheses when calling the "get all" function.
+- "save_robot" - save robot parameters.
+- "save_network" - save network settings.
+- "reboot" - reboot the board
 
-Before using, we recommend reading the template documentation located in `docs/template.md` to learn more about commands that can be sent to the robot.
+Important! To apply the settings, you must save the changes with the "save_network" and/or "save_robot" commands, and then reboot the board.
+
+Example of WiFi setup:
+
+1. Connect the board via USB
+2. Open the serial monitor
+3. If you see an attempt to connect to a WiFi network, send "y".
+4. Set the WiFi SSID using the command "set wssid=MyWiFi;", where MyWiFi is the name of your WiFi network.
+5. Set the WiFi password using the command "set wpas=password;", where password is the password for your WiFi network.
+6. Save the settings with the command "save_network;"
+7. Reboot the microcontroller with the command "reboot;"
+8. Wait for the network connection during boot. If the connection fails, double-check the entered data.
+
+### Python Script with Verification
+
+1. Enter the broker connection data in the Python script `test_mqtt.py`, located in the `python_scripts` folder. 
+2. Create a Python virtual environment and activate it (optional)
+3. Install the requirements `pip install -r python_scripts/requirements.txt`.
+4. Run the script `test_mqtt.py`. If you see the output: **All works as expected.** - everything is working correctly.
+
+
+## WEB Interface for Control
+
+In the Python folder, there is also a simple web application for real-time robot control. To use it:
+
+1. Enter the broker connection data in the Python script `web_app.py`, located in the `python_scripts` folder. You can also enter the IP address of the camera there, so you can see the live stream on the web page.
+2. Create a Python virtual environment and activate it (optional)
+3. Install the requirements `pip install -r python_scripts/requirements.txt`.
+4. Run the script `web_app.py`
+5. In your browser, go to `http://localhost:5000/` and you will see the web interface
+
+Before using it, we recommend reading the documentation on the template, located in `docs/template.md`, where you can learn more about the commands that can be sent to the robot.
 
 ![alt text](<docs/web_interface.png>)
 
+
 ## Alternative Robot Control Options
 
-You can use any MQTT client to control the robot, but you will need to study how to work with it on your own. The documentation on commands for the robot is available [here](docs/template.md).
+You can use any MQTT client to control the robot, but you will need to study how to work with it yourself. The documentation on the commands for the robot is available [here](docs/template.ru.md).
