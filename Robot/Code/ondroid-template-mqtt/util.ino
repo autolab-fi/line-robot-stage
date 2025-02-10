@@ -48,6 +48,31 @@ void func_move_robot(){
   sendMessageSystem("{\"type\":\"reset\", \"msg\":\"Reset completed!\"}");
 }
 
+void initRobot(){
+  robot = lineRobot(robotSettings.pinMotorLeft1,
+    robotSettings.pinMotorLeft2,
+    robotSettings.pinMotorRight1,
+    robotSettings.pinMotorRight2, 
+    robotSettings.pinEncoderLeft1, 
+    robotSettings.pinEncoderLeft2,
+    robotSettings.pinEncoderRight1,
+    robotSettings.pinEncoderRight2,
+    robotSettings.wheelRadius, 
+    robotSettings.distanceBetweenWheels, 
+    robotSettings.encoderResolution,
+    robotSettings.kpAng,
+    robotSettings.kiAng,
+    robotSettings.kdAng,
+    robotSettings.kpSpeedLeft ,
+    robotSettings.kpSpeedRight,
+    robotSettings.kdSpeedLeft,
+    robotSettings.kdSpeedRight,
+    robotSettings.kiSpeed,
+    robotSettings.kStraight,
+    robotSettings.maxSpeedRadians
+  );
+  robot.begin();
+}
 
 
 void readVoltage(){
@@ -56,8 +81,8 @@ void readVoltage(){
   int64_t Adc0_temp = 0;
   int64_t Adc1_temp = 0;
   for(uint8_t i = 0;i<32; i++){
-    adc0 = adc.readADC_SingleEnded(0);
-    adc1 = adc.readADC_SingleEnded(1);
+    adc0 = adc.readADC_SingleEnded(robotSettings.pinVoltage);
+    adc1 = adc.readADC_SingleEnded(robotSettings.pinCharging);
     Adc0_temp += adc0;
     Adc1_temp += adc1;
   }
@@ -71,8 +96,8 @@ void readVoltage(){
   Serial.println(adc0);
   Serial.print("adc1: ");
   Serial.println(adc1);
-  voltage_charging = adc.computeVolts(adc0);
-  voltage = adc.computeVolts(adc1)*k_voltage;
+  voltage_charging = adc.computeVolts(adc1);
+  voltage = adc.computeVolts(adc0)*k_voltage;
   charging = voltage_charging > 1;
   Serial.print("voltage: ");
   Serial.println(voltage);
@@ -92,13 +117,10 @@ void moveCharging(){
     robot.moveBackwardDistance(7);
     readVoltage();
   }
-  String ch = "false";
-  if (charging){
-    ch="true";
-  }
   String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(voltage)+"\", \"charging\": \""+ch+"\"}";
   sendMessageSystem(resp);
 }
+
 
 // func to restart esp32
 void restartESP32(){
