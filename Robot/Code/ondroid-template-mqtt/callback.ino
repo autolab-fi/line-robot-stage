@@ -1,6 +1,6 @@
 // function to send user's messages to mqtt channel
 template <typename T>
-void print(T value){
+void printMQTT(T value){
   char* charArray = convertToChar(value);
   client.publish(userTopicOutput.c_str(), charArray);
 }
@@ -16,7 +16,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
   // display message
   Serial.print("Topic: ");
   Serial.println(topic);
-  if (topic==systemTopicInput){
+  if (String(topic)==systemTopicInput){
     Serial.print("Message: ");
     String data = "";
     for (int i = 0; i < length; i++) {
@@ -38,11 +38,12 @@ void callback(char *topic, byte *payload, unsigned int length) {
     }
     // get battery info: battery voltage and charging
     if (strcmp(doc["command"], "battery-status") == 0) {
+      readVoltage();
       String ch = "false";
-      if (charging()>0){
+      if (charging){
         ch="true";
       }
-      String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(getVoltage())+"\", \"charging\": \""+ch+"\"}";
+      String resp = "{\"type\":\"battery-status\", \"voltage\": \""+String(voltage)+"\", \"charging\": \""+ch+"\"}";
       sendMessageSystem(resp);
       return;
     }
@@ -58,6 +59,35 @@ void callback(char *topic, byte *payload, unsigned int length) {
       robotMove = true;
       return;
     }
+    // set coefficients
+    if (strcmp(doc["command"], "set-coeffs") == 0){
+      //robot_set_coeffs_mode = true;
+      String name = String(doc["name"]);
+      String value = String(doc["value"]);
+      sendMessageSystem("{\"type\":\"success\", \"msg\":\""+setConfig(name, value)+"\"}");
+      return;
+    }
+    if (strcmp(doc["command"], "get-coeffs") == 0){
+      //robot_set_coeffs_mode = true;
+      String name = String(doc["name"]);
+      sendMessageSystem("{\"type\":\"success\", \"msg\":\""+getConfig(name)+"\"}");
+      return;
+    }
+    if (strcmp(doc["command"], "save_settings") == 0){
+      //robot_set_coeffs_mode = true;
+      String name = String(doc["name"]);
+      String msg = "incorrect name";
+      if (name=="network"){
+        saveNetworkSettingsToEEPROM(networkSettings);
+        msg = "network parameters saved successfully";
+      } else if (name=="robot"){
+        saveRobotSettingsToEEPROM(robotSettings);
+        msg = "robot parameters saved successfully";
+      }
+      sendMessageSystem("{\"type\":\"success\", \"msg\":\""+msg+"\"}");
+      return;
+    }
+
     // start user's code
     if (strcmp(doc["command"], "start") == 0) {
       if (doc["set_block"]){
@@ -87,7 +117,9 @@ void callback(char *topic, byte *payload, unsigned int length) {
       updateInProgress = true;
       const char* url = doc["url"];
       Serial.println(url);
-      t_httpUpdate_return ret = httpUpdate.update(espClient, url);
+      timer_started_upload = millis();
+      WiFiClient updateClient;
+      t_httpUpdate_return ret = httpUpdate.update(updateClient, url);
       switch (ret) {
           case HTTP_UPDATE_FAILED:
             Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
@@ -113,6 +145,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
       sendMessageSystem("{\"type\":\"error\", \"msg\":\"Error downloading sketch!\"}");
       return;
     }
+    sendMessageSystem("{\"type\":\"error\", \"msg\":\"Error downloading sketch!\"}");
   }
 }
 
@@ -127,7 +160,11 @@ void update_finished() {
 
 void update_progress(int cur, int total) {
   uint8_t current_percentage = (cur * 100) / total;
-  Serial.printf("CALLBACK: HTTP update process at %d%% (%d of %d bytes)...\n", current_percentage, cur, total);
+  if (current_percentage%10==0 and previous_percentage!=current_percentage){
+    Serial.printf("CALLBACK: HTTP update process at %d%% (%d of %d bytes)...\n", current_percentage, cur, total);
+    sendMessageSystem("{\"type\":\"progress\", \"percentage\": \""+String(current_percentage)+"\"}");
+    previous_percentage = current_percentage;
+  }
 }
 
 
