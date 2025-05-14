@@ -4,21 +4,17 @@ This README outlines the components required for this project, divided into stan
 
 ## Standard Components
 
-1. **Microcontroller**: ESP32-WROOM-32 - 1 unit
-2. **Lithium Battery**: 7s2p or 6s2p configuration - 1 unit
-3. **Buck Converter** (Step-down) - 1 unit
+1. **Esp32 board + shield**: self-produced - 1 unit
+1. **Lithium Battery**: 7s2p or 6s2p configuration - 1 unit
 4. **Motor with Encoder**: JGB37-545 12V 178RPM - 2 units
 5. **Motor Holder** - 2 units
 6. **Collet** - 2 units
 7. **Wheel** - 2 units
-8. **Motor Driver**: L298N - 1 unit
-9. **Breadboard**: 400 points - 1 unit
 10. **LED 8mm White** - 2 units
 11. **LED 8mm Red** - 2 units
 12. **Ball Caster 15mm** - 2 units
-13. **5-Channel TCRT5000 Line-Following Sensor** - 1 unit
+13. **8-Channel Line-Following Sensor** - 1 unit
 14. **Color Sensor GY-31 TCS230 TCS3200** - 1 unit
-15. **Jumper Wires** - quantity varies
 16. **Power Wires** - quantity varies
 17. **Micro-USB Cable** - quantity varies
 
