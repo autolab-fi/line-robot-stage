@@ -49,6 +49,7 @@
 - **Brass Coupler** (inner diameter 6 mm) — 2 pcs. ([link](https://shop.robotclass.ru/item/806))
 - **Wheels** (65–68 mm) — 2 pcs. ([link](https://shop.robotclass.ru/item/1172))
 - **XT-60 Connector (female)** — 1 pc.
+  ![image](https://camo.githubusercontent.com/80d5e606f7099f9aa936a25d4df52132eb1070366be52e3b65bb9cadc1558092/68747470733a2f2f63646e2e786d692e65652f313932382d73757065726c617267655f64656661756c742f78742d36302d72617a656d2d6d616c652d66656d616c652d3630612e6a7067)
 - **Wires for Charging Module** — 2 pcs. (red and black)
 - **Ring Terminal (M3)** — 2 pcs.
 - **Textolite** — 2 pcs. (45×70 mm)
